@@ -4,6 +4,8 @@
  * You should have received a copy of the license in this archive (see LICENSE).
  *
  * Copyright Nikolai Kudashov, 2013-2018.
+ *
+ * Modified for OsintGram
  */
 
 package org.telegram.messenger;
@@ -172,7 +174,7 @@ public class ApplicationLoader extends Application {
         } catch (Exception e) {
             FileLog.e(e);
         }
-        return new File("/data/data/org.telegram.messenger/files");
+        return new File("/data/data/org.osintgram/files");
     }
 
     public static File getFilesDirFixed(String child) {
@@ -194,6 +196,9 @@ public class ApplicationLoader extends Application {
         }
         applicationInited = true;
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
+
+        // OsintGram: init anti-delete
+        OsintGramAntiDelete.init(applicationContext);
 
         try {
             LocaleController.getInstance(); //TODO improve
@@ -506,37 +511,10 @@ public class ApplicationLoader extends Application {
                         return true;
                 }
             }
-        } catch (Throwable ignore) {
-
-        }
-        return false;
-    }
-
-    public static int getAutodownloadNetworkType() {
-        try {
-            ensureCurrentNetworkGet(false);
-            if (currentNetworkInfo == null) {
-                return StatsController.TYPE_MOBILE;
-            }
-            if (currentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI || currentNetworkInfo.getType() == ConnectivityManager.TYPE_ETHERNET) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && (lastKnownNetworkType == StatsController.TYPE_MOBILE || lastKnownNetworkType == StatsController.TYPE_WIFI) && System.currentTimeMillis() - lastNetworkCheckTypeTime < 5000) {
-                    return lastKnownNetworkType;
-                }
-                if (connectivityManager.isActiveNetworkMetered()) {
-                    lastKnownNetworkType = StatsController.TYPE_MOBILE;
-                } else {
-                    lastKnownNetworkType = StatsController.TYPE_WIFI;
-                }
-                lastNetworkCheckTypeTime = System.currentTimeMillis();
-                return lastKnownNetworkType;
-            }
-            if (currentNetworkInfo.isRoaming()) {
-                return StatsController.TYPE_ROAMING;
-            }
         } catch (Exception e) {
             FileLog.e(e);
         }
-        return StatsController.TYPE_MOBILE;
+        return false;
     }
 
     public static int getCurrentNetworkType() {
@@ -584,7 +562,6 @@ public class ApplicationLoader extends Application {
             }
 
             netInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
             if (netInfo != null && netInfo.isConnectedOrConnecting()) {
                 return true;
             } else {
@@ -611,114 +588,35 @@ public class ApplicationLoader extends Application {
         return result;
     }
 
-    public static void startAppCenter(Activity context) {
-        applicationLoaderInstance.startAppCenterInternal(context);
+    public static void showTooltip(ViewGroup viewGroup, BaseFragment fragment, ItemOptions options) {
+        applicationLoaderInstance.onShowTooltip(viewGroup, fragment, options);
     }
 
-    public static void checkForUpdates() {
-        applicationLoaderInstance.checkForUpdatesInternal();
-    }
-
-    public static void appCenterLog(Throwable e) {
-        applicationLoaderInstance.appCenterLogInternal(e);
-    }
-
-    protected void appCenterLogInternal(Throwable e) {
+    protected void onShowTooltip(ViewGroup viewGroup, BaseFragment fragment, ItemOptions options) {
 
     }
 
-    protected void checkForUpdatesInternal() {
-
+    public static IUpdateLayout createUpdateLayout(Activity activity, ViewGroup viewGroup) {
+        return applicationLoaderInstance.onCreateUpdateLayout(activity, viewGroup);
     }
 
-    protected void startAppCenterInternal(Activity context) {
-
-    }
-
-    public static void logDualCamera(boolean success, boolean vendor) {
-        applicationLoaderInstance.logDualCameraInternal(success, vendor);
-    }
-
-    protected void logDualCameraInternal(boolean success, boolean vendor) {
-
-    }
-
-    public boolean checkApkInstallPermissions(final Context context) {
-        return false;
-    }
-
-    public boolean openApkInstall(Activity activity, TLRPC.Document document) {
-        return false;
-    }
-
-    public boolean showUpdateAppPopup(Context context, TLRPC.TL_help_appUpdate update, int account) {
-        return false;
-    }
-
-    public boolean showCustomUpdateAppPopup(Context context, BetaUpdate update, int account) {
-        return false;
-    }
-
-    public IUpdateLayout takeUpdateLayout(Activity activity, ViewGroup sideMenuContainer) {
+    protected IUpdateLayout onCreateUpdateLayout(Activity activity, ViewGroup viewGroup) {
         return null;
     }
 
-    public TLRPC.Update parseTLUpdate(int constructor) {
-        return null;
+    public static boolean isAppUpdateAvailable() {
+        return applicationLoaderInstance.onIsAppUpdateAvailable();
     }
 
-    public void processUpdate(int currentAccount, TLRPC.Update update) {
-
-    }
-
-    public boolean onSuggestionFill(String suggestion, CharSequence[] output, boolean[] closeable) {
+    protected boolean onIsAppUpdateAvailable() {
         return false;
     }
 
-    public boolean onSuggestionClick(String suggestion) {
-        return false;
+    public static void checkAppUpdate(boolean force) {
+        applicationLoaderInstance.onCheckAppUpdate(force);
     }
 
-    public void addItemOptions(ItemOptions itemOptions) {
+    protected void onCheckAppUpdate(boolean force) {
 
-    }
-
-    public boolean checkRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
-        return false;
-    }
-
-    public boolean consumePush(int account, JSONObject json) {
-        return false;
-    }
-
-    public void onResume() {
-
-    }
-
-    public boolean onPause() {
-        return false;
-    }
-
-    public BaseFragment openSettings(int n) {
-        return null;
-    }
-
-    public boolean isCustomUpdate() {
-        return false;
-    }
-    public void downloadUpdate() {}
-    public void cancelDownloadingUpdate() {}
-    public boolean isDownloadingUpdate() {
-        return false;
-    }
-    public float getDownloadingUpdateProgress() {
-        return 0.0f;
-    }
-    public void checkUpdate(boolean force, Runnable whenDone) {}
-    public BetaUpdate getUpdate() {
-        return null;
-    }
-    public File getDownloadedUpdateFile() {
-        return null;
     }
 }
