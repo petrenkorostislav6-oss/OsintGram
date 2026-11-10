@@ -1,32 +1,35 @@
 # OsintGram
 
-**Telegram client** for Android with enhanced anonymity, Ghost Mode, plugin support and planned built-in OSINT tools.
+Telegram client for Android with **Ghost Mode**, enhanced anonymity and planned built-in OSINT tools.
 
-Based on the official Telegram Android source + features inspired by AyuGram / exteraGram.
+Based on official Telegram Android source + architecture inspired by AyuGram / exteraGram.
 
-## Features (planned / in progress)
+## Current status (November 2026)
 
-- **Ghost Mode** — hide online status, typing indicator, read receipts, story views
-- Advanced anonymity & privacy settings
-- Plugin system (compatible with popular Telegram mods)
-- Built-in OSINT tools (Instagram + Telegram) — coming later
-- Custom branding as **OsintGram**
+### Ready
+- Project structure and branding (OsintGram)
+- Ghost Mode settings storage (`OsintGramConfig`)
+- Ghost Mode settings UI (`OsintGramSettingsActivity`)
+- Helper classes and central hooks (`OsintGramUtils`, `OsintGramHooks`, `OsintGramBootstrap`)
+- Detailed implementation guide (`GHOST_MODE_IMPLEMENTATION.md`)
+- Placeholders for future OSINT modules
 
-## Current status
+### Not yet working
+- Actual Ghost Mode (online / typing / read receipts / stories) — hooks are prepared but **not wired** into core Telegram classes yet
+- Settings screen is not linked from the main menu
+- Own API credentials not set
+- Real OSINT functionality
 
-Clean base of official Telegram for Android.  
-Rebranding and Ghost Mode implementation in progress.
+## How to continue development
 
-## Credits
+1. Read `GHOST_MODE_IMPLEMENTATION.md`
+2. Get your own `APP_ID` + `APP_HASH` from https://my.telegram.org and put them into `BuildVars.java`
+3. Call `OsintGramBootstrap.init(context)` from `ApplicationLoader`
+4. Insert the hook checks from `OsintGramHooks` into the relevant core methods
+5. Add a menu entry that opens `OsintGramSettingsActivity`
 
-- Official Telegram for Android (DrKLO / Telegram)
-- AyuGram team (Radolyn Labs) for Ghost Mode inspiration
-- exteraGram / community mods
+## Build
+See `BUILD_INSTRUCTIONS.md`
 
 ## Disclaimer
-
-This is an **unofficial** client.  
-It may violate Telegram Developer Terms of Service (especially if using official API credentials with modified clients).  
-Use at your own risk. Intended for educational and personal privacy purposes only.
-
-Do **not** use the official Telegram name or logo without changes.
+Unofficial client. Using official API credentials in modified clients violates Telegram Developer ToS. Use at your own risk. For educational and privacy purposes only.
